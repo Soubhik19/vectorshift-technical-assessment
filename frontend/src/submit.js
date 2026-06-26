@@ -1,10 +1,8 @@
 // submit.js
-// WHAT THIS FILE DOES: Sends pipeline topology to the backend for DAG validation.
-// WHY BUILT THIS WAY: Reads nodes/edges directly from the zustand store, sends them
-//   as JSON to the /pipelines/parse endpoint, and displays the result as an alert.
-// WHAT TO SAY IN INTERVIEW: "The submit button reads the current pipeline state from
-//   the store, sends nodes and edges to a FastAPI backend that runs a DFS cycle check,
-//   and shows the user whether their pipeline is a valid DAG."
+// WHAT THIS FILE DOES: Sends pipeline topology to the backend for DAG validation
+//   and displays the result in a custom glassmorphism modal instead of browser alert.
+// WHY BUILT THIS WAY: Prevents browser alert blocking (when Chrome suppresses popups)
+//   and provides a modern, premium UX consistent with VectorShift's dark theme.
 
 import { useState, useCallback } from 'react';
 import { useStore } from './store';
@@ -18,6 +16,7 @@ const selector = (state) => ({
 export const SubmitButton = () => {
     const { nodes, edges } = useStore(selector, shallow);
     const [loading, setLoading] = useState(false);
+    const [modalData, setModalData] = useState(null);
 
     const isEmpty = nodes.length === 0;
 
@@ -37,17 +36,17 @@ export const SubmitButton = () => {
         }
 
         const data = await response.json();
-        const dagStatus = data.is_dag ? '✅ Yes' : '❌ No — pipeline has a cycle';
-
-        alert(
-          `Pipeline Analysis\n` +
-          `━━━━━━━━━━━━━━━━━━━━━\n` +
-          `Nodes: ${data.num_nodes}\n` +
-          `Edges: ${data.num_edges}\n` +
-          `Valid Pipeline (DAG): ${dagStatus}`
-        );
+        setModalData({
+          success: true,
+          num_nodes: data.num_nodes,
+          num_edges: data.num_edges,
+          is_dag: data.is_dag,
+        });
       } catch (error) {
-        alert(`Error: ${error.message}\n\nMake sure the backend is running:\nuvicorn main:app --reload`);
+        setModalData({
+          success: false,
+          error: error.message,
+        });
       } finally {
         setLoading(false);
       }
@@ -107,6 +106,151 @@ export const SubmitButton = () => {
             >
               {loading ? '⏳ Validating...' : '⚡ Submit Pipeline'}
             </button>
+
+            {/* Custom Modal Popup */}
+            {modalData && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                backdropFilter: 'blur(8px)',
+                zIndex: 99999,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '20px',
+              }}>
+                <div style={{
+                  background: '#1e293b',
+                  border: '1px solid #334155',
+                  borderRadius: '16px',
+                  padding: '28px',
+                  width: '100%',
+                  maxWidth: '420px',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  fontFamily: '"Inter", sans-serif',
+                  color: '#f1f5f9',
+                  animation: 'fadeIn 0.2s ease-out',
+                }}>
+                  {modalData.success ? (
+                    <>
+                      <h3 style={{
+                        margin: '0 0 16px 0',
+                        fontSize: '20px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: modalData.is_dag ? '#10b981' : '#f43f5e',
+                      }}>
+                        {modalData.is_dag ? '✅ DAG Validation Passed' : '❌ Cycle Detected'}
+                      </h3>
+                      
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        marginBottom: '24px',
+                        background: '#0f172a',
+                        padding: '16px',
+                        borderRadius: '10px',
+                        border: '1px solid #1e293b',
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'between', justifyContent: 'space-between' }}>
+                          <span style={{ color: '#94a3b8' }}>Total Nodes:</span>
+                          <span style={{ fontWeight: 600 }}>{modalData.num_nodes}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'between', justifyContent: 'space-between' }}>
+                          <span style={{ color: '#94a3b8' }}>Total Edges:</span>
+                          <span style={{ fontWeight: 600 }}>{modalData.num_edges}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'between', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ color: '#94a3b8' }}>Pipeline Status:</span>
+                          <span style={{
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            backgroundColor: modalData.is_dag ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
+                            color: modalData.is_dag ? '#10b981' : '#f43f5e',
+                          }}>
+                            {modalData.is_dag ? 'Valid DAG' : 'Invalid Pipeline'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {!modalData.is_dag && (
+                        <p style={{
+                          margin: '0 0 20px 0',
+                          fontSize: '13px',
+                          color: '#94a3b8',
+                          lineHeight: '1.5',
+                        }}>
+                          Your pipeline contains a closed loop (cycle). Please resolve the loop so the graph forms a Directed Acyclic Graph (DAG) for processing.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <h3 style={{
+                        margin: '0 0 16px 0',
+                        fontSize: '20px',
+                        fontWeight: 600,
+                        color: '#f43f5e',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                      }}>
+                        ⚠️ Connection Error
+                      </h3>
+                      <p style={{
+                        margin: '0 0 20px 0',
+                        fontSize: '14px',
+                        color: '#94a3b8',
+                        lineHeight: '1.5',
+                      }}>
+                        {modalData.error}
+                      </p>
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#64748b',
+                        background: '#0f172a',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        marginBottom: '24px',
+                      }}>
+                        Verify that your backend FastAPI server is running:<br/>
+                        <code style={{ color: '#e2e8f0', display: 'block', marginTop: '6px' }}>uvicorn main:app --reload --port 8000</code>
+                      </div>
+                    </>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setModalData(null)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 0',
+                      background: '#334155',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#475569'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#334155'}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
         </div>
     );
 };
