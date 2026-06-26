@@ -1,47 +1,52 @@
 // outputNode.js
+// WHAT THIS FILE DOES: Represents the final output of the pipeline.
+// WHY BUILT THIS WAY: Same reason as inputNode — only unique content here.
+// WHAT TO SAY IN INTERVIEW: "One target handle on the left, no source handles.
+//   The inputs array drives that automatically through BaseNode."
 
-import { useState } from 'react';
-import { Handle, Position } from 'reactflow';
+import { useState, useCallback, memo } from 'react';
+import BaseNode, { fieldStyle, labelStyle, inputStyle } from './BaseNode';
 
-export const OutputNode = ({ id, data }) => {
-  const [currName, setCurrName] = useState(data?.outputName || id.replace('customOutput-', 'output_'));
-  const [outputType, setOutputType] = useState(data.outputType || 'Text');
+export const OutputNode = memo(({ id, data }) => {
+  const [name, setName] = useState(
+    data?.outputName || id.replace('customOutput-', 'output_')
+  );
+  const [type, setType] = useState(data?.outputType || 'Text');
 
-  const handleNameChange = (e) => {
-    setCurrName(e.target.value);
-  };
-
-  const handleTypeChange = (e) => {
-    setOutputType(e.target.value);
-  };
+  const handleNameChange = useCallback((e) => setName(e.target.value), []);
+  const handleTypeChange = useCallback((e) => setType(e.target.value), []);
 
   return (
-    <div style={{width: 200, height: 80, border: '1px solid black'}}>
-      <Handle
-        type="target"
-        position={Position.Left}
-        id={`${id}-value`}
-      />
-      <div>
-        <span>Output</span>
+    <BaseNode
+      id={id}
+      title="Output"
+      icon="📤"
+      color="#3b82f6"
+      inputs={[{ id: 'value', label: 'value' }]}
+    >
+      <div style={fieldStyle}>
+        <label style={labelStyle}>Name</label>
+        <input
+          style={inputStyle}
+          value={name}
+          onChange={handleNameChange}
+        />
       </div>
-      <div>
-        <label>
-          Name:
-          <input 
-            type="text" 
-            value={currName} 
-            onChange={handleNameChange} 
-          />
-        </label>
-        <label>
-          Type:
-          <select value={outputType} onChange={handleTypeChange}>
-            <option value="Text">Text</option>
-            <option value="File">Image</option>
-          </select>
-        </label>
+      <div style={fieldStyle}>
+        <label style={labelStyle}>Type</label>
+        <select
+          style={{ ...inputStyle, cursor: 'pointer' }}
+          value={type}
+          onChange={handleTypeChange}
+        >
+          <option value="Text">Text</option>
+          <option value="File">File</option>
+          <option value="Image">Image</option>
+        </select>
       </div>
-    </div>
+    </BaseNode>
   );
-}
+});
+
+OutputNode.displayName = 'OutputNode';
+

@@ -10,6 +10,11 @@ import { InputNode } from './nodes/inputNode';
 import { LLMNode } from './nodes/llmNode';
 import { OutputNode } from './nodes/outputNode';
 import { TextNode } from './nodes/textNode';
+import { FileLoaderNode } from './nodes/fileLoaderNode';
+import { ChunkerNode } from './nodes/chunkerNode';
+import { EmbeddingNode } from './nodes/embeddingNode';
+import { VectorStoreNode } from './nodes/vectorStoreNode';
+import { RetrieverNode } from './nodes/retrieverNode';
 
 import 'reactflow/dist/style.css';
 
@@ -20,6 +25,11 @@ const nodeTypes = {
   llm: LLMNode,
   customOutput: OutputNode,
   text: TextNode,
+  fileLoader: FileLoaderNode,
+  chunker: ChunkerNode,
+  embedding: EmbeddingNode,
+  vectorStore: VectorStoreNode,
+  retriever: RetrieverNode,
 };
 
 const selector = (state) => ({
@@ -80,6 +90,7 @@ export const PipelineUI = () => {
             addNode(newNode);
           }
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [reactFlowInstance]
     );
 
@@ -90,7 +101,7 @@ export const PipelineUI = () => {
 
     return (
         <>
-        <div ref={reactFlowWrapper} style={{width: '100wv', height: '70vh'}}>
+        <div ref={reactFlowWrapper} style={{width: '100vw', height: '70vh'}}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -104,12 +115,28 @@ export const PipelineUI = () => {
                 proOptions={proOptions}
                 snapGrid={[gridSize, gridSize]}
                 connectionLineType='smoothstep'
+                style={{ background: '#0f172a' }}
             >
-                <Background color="#aaa" gap={gridSize} />
-                <Controls />
-                <MiniMap />
+                <Background color="#334155" gap={gridSize} size={1} />
+                <Controls
+                  style={{
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    borderRadius: '8px',
+                  }}
+                />
+                <MiniMap
+                  style={{
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    borderRadius: '8px',
+                  }}
+                  nodeColor="#475569"
+                  maskColor="rgba(15, 23, 42, 0.7)"
+                />
             </ReactFlow>
         </div>
         </>
     )
 }
+

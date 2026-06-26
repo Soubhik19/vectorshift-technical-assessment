@@ -1,47 +1,53 @@
 // inputNode.js
+// WHAT THIS FILE DOES: The node where users define pipeline inputs (name + type).
+// WHY BUILT THIS WAY: All the handle/border/header code is gone — BaseNode handles
+//   that. This file only contains what is unique to an Input node.
+// WHAT TO SAY IN INTERVIEW: "Compare this to the original — it went from ~45 lines
+//   to ~30. Everything node-specific is here; everything shared lives in BaseNode."
 
-import { useState } from 'react';
-import { Handle, Position } from 'reactflow';
+import { useState, useCallback, memo } from 'react';
+import BaseNode, { fieldStyle, labelStyle, inputStyle } from './BaseNode';
 
-export const InputNode = ({ id, data }) => {
-  const [currName, setCurrName] = useState(data?.inputName || id.replace('customInput-', 'input_'));
-  const [inputType, setInputType] = useState(data.inputType || 'Text');
+export const InputNode = memo(({ id, data }) => {
+  const [name, setName] = useState(
+    data?.inputName || id.replace('customInput-', 'input_')
+  );
+  const [type, setType] = useState(data?.inputType || 'Text');
 
-  const handleNameChange = (e) => {
-    setCurrName(e.target.value);
-  };
-
-  const handleTypeChange = (e) => {
-    setInputType(e.target.value);
-  };
+  const handleNameChange = useCallback((e) => setName(e.target.value), []);
+  const handleTypeChange = useCallback((e) => setType(e.target.value), []);
 
   return (
-    <div style={{width: 200, height: 80, border: '1px solid black'}}>
-      <div>
-        <span>Input</span>
+    <BaseNode
+      id={id}
+      title="Input"
+      icon="📥"
+      color="#10b981"
+      outputs={[{ id: 'value', label: 'value' }]}
+    >
+      <div style={fieldStyle}>
+        <label style={labelStyle}>Name</label>
+        <input
+          style={inputStyle}
+          value={name}
+          onChange={handleNameChange}
+        />
       </div>
-      <div>
-        <label>
-          Name:
-          <input 
-            type="text" 
-            value={currName} 
-            onChange={handleNameChange} 
-          />
-        </label>
-        <label>
-          Type:
-          <select value={inputType} onChange={handleTypeChange}>
-            <option value="Text">Text</option>
-            <option value="File">File</option>
-          </select>
-        </label>
+      <div style={fieldStyle}>
+        <label style={labelStyle}>Type</label>
+        <select
+          style={{ ...inputStyle, cursor: 'pointer' }}
+          value={type}
+          onChange={handleTypeChange}
+        >
+          <option value="Text">Text</option>
+          <option value="File">File</option>
+          <option value="Image">Image</option>
+        </select>
       </div>
-      <Handle
-        type="source"
-        position={Position.Right}
-        id={`${id}-value`}
-      />
-    </div>
+    </BaseNode>
   );
-}
+});
+
+InputNode.displayName = 'InputNode';
+
