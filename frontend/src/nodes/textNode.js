@@ -19,8 +19,8 @@ export const TextNode = memo(({ id, data }) => {
 
   // Detect {{variables}} and auto-resize
   useEffect(() => {
-    // Extract variables: match {{ validJSVariableName }}
-    const regex = /\{\{\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\}\}/g;
+    // Extract variables: match {{ validJSVariableName }} or {{ nodeName.output }}
+    const regex = /\{\{\s*([a-zA-Z_$][a-zA-Z0-9_$.]*)\s*\}\}/g;
     const found = [];
     let match;
     while ((match = regex.exec(text)) !== null) {
