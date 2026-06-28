@@ -1,6 +1,7 @@
 # personal notes - never push these
 _my_notes/
 *.zip
+*.mp4
 
 # build artifacts
 frontend/node_modules/
