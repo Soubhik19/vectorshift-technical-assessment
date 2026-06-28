@@ -159,15 +159,15 @@ export const SubmitButton = () => {
                         borderRadius: '10px',
                         border: '1px solid #1e293b',
                       }}>
-                        <div style={{ display: 'flex', justifyContent: 'between', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#94a3b8' }}>Total Nodes:</span>
                           <span style={{ fontWeight: 600 }}>{modalData.num_nodes}</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'between', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#94a3b8' }}>Total Edges:</span>
                           <span style={{ fontWeight: 600 }}>{modalData.num_edges}</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'between', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ color: '#94a3b8' }}>Pipeline Status:</span>
                           <span style={{
                             padding: '4px 10px',

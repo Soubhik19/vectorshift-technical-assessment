@@ -7,7 +7,7 @@
 //   variable name. Each unique variable becomes a Handle on the left side. So typing
 //   {{name}} creates a handle called 'name' instantly."
 
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import BaseNode, { fieldStyle, labelStyle, inputStyle } from './BaseNode';
 
