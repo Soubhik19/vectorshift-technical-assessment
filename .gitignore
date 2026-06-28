@@ -1,7 +1,9 @@
 WALKTHROUGH.md
 RESEARCH_NOTES.md
+WALKTHROUGH_SCRIPT.md
 .DS_Store
 DS_Store
 backend/.venv/
 backend/__pycache__/
 frontend/node_modules/
+*.zip
