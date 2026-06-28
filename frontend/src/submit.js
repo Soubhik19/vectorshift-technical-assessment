@@ -25,7 +25,9 @@ export const SubmitButton = () => {
       setLoading(true);
 
       try {
-        const response = await fetch('http://localhost:8000/pipelines/parse', {
+        const backendBaseUrl = process.env.REACT_APP_BACKEND_URL || 'http://127.0.0.1:8000';
+
+        const response = await fetch(`${backendBaseUrl.replace(/\/$/, '')}/pipelines/parse`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nodes, edges }),
